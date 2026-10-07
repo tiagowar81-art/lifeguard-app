@@ -1,0 +1,19 @@
+-- PostgreSQL + PostGIS Schema para P2P Health
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE TYPE supply_category AS ENUM ('asthma_inhaler', 'rapid_insulin', 'slow_insulin', 'glucometer');
+
+CREATE TABLE user_supplies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    category supply_category NOT NULL,
+    brand_name VARCHAR(100),
+    is_sealed BOOLEAN DEFAULT TRUE,
+    expiration_date DATE NOT NULL,
+    location GEOGRAPHY(POINT, 4326) NOT NULL, -- Coordenadas GPS
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índice Espacial para busca por raio (ex: 5km)
+CREATE INDEX idx_supplies_location ON user_supplies USING GIST(location);
